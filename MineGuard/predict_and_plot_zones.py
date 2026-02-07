@@ -2,11 +2,8 @@ import os
 import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
 import matplotlib.patches as patches
 import matplotlib.cm as cm
-=======
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
 from datetime import timedelta
 
 # =========================
@@ -15,21 +12,14 @@ from datetime import timedelta
 
 WINDOW_HOURS = 3
 STEP_HOURS = 1
-<<<<<<< HEAD
 PAUSE_SECONDS = 1.0   # visualization speed
-=======
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
 
 MODEL_FILE = "rockfall_risk_model.pkl"
 ENCODER_FILE = "rock_encoder.pkl"
 SENSOR_FILE = "sensor_data.csv"
 
 # =========================
-<<<<<<< HEAD
 # LOAD
-=======
-# LOAD PATHS
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
 # =========================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -42,11 +32,7 @@ sensor_df["timestamp"] = pd.to_datetime(sensor_df["timestamp"])
 sensor_df = sensor_df.sort_values("timestamp")
 
 # =========================
-<<<<<<< HEAD
 # ZONES
-=======
-# ZONE METADATA
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
 # =========================
 
 zones = [
@@ -58,7 +44,6 @@ zones = [
 ]
 
 # =========================
-<<<<<<< HEAD
 # TIME SETUP
 # =========================
 
@@ -82,27 +67,6 @@ while current_time <= end_time:
     window_df = history_df[
         history_df["timestamp"] > current_time - timedelta(hours=WINDOW_HOURS)
     ]
-=======
-# LIVE SIMULATION LOOP
-# =========================
-
-start_time = sensor_df["timestamp"].min() + timedelta(hours=WINDOW_HOURS)
-end_time = sensor_df["timestamp"].max()
-
-plt.ion()  # interactive mode
-fig, ax = plt.subplots(figsize=(8, 6))
-
-current_time = start_time
-
-while current_time <= end_time:
-
-    # Take all data up to now
-    history_df = sensor_df[sensor_df["timestamp"] <= current_time]
-
-    # Slice last window
-    window_start = current_time - timedelta(hours=WINDOW_HOURS)
-    window_df = history_df[history_df["timestamp"] > window_start]
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
 
     features = []
 
@@ -111,26 +75,12 @@ while current_time <= end_time:
         if len(zdf) < 10:
             continue
 
-<<<<<<< HEAD
         features.append({
             "zone_id": z["zone_id"],
             "vib_mean_3h": zdf["vibration"].mean(),
             "vib_max_3h": zdf["vibration"].max(),
             "rain_sum_3h": zdf["rainfall"].sum(),
             "disp_trend_3h": zdf["displacement"].iloc[-1] - zdf["displacement"].iloc[0],
-=======
-        vib_mean = zdf["vibration"].mean()
-        vib_max = zdf["vibration"].max()
-        rain_sum = zdf["rainfall"].sum()
-        disp_trend = zdf["displacement"].iloc[-1] - zdf["displacement"].iloc[0]
-
-        features.append({
-            "zone_id": z["zone_id"],
-            "vib_mean_3h": vib_mean,
-            "vib_max_3h": vib_max,
-            "rain_sum_3h": rain_sum,
-            "disp_trend_3h": disp_trend,
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
             "slope_angle": z["slope"],
             "bench_height": z["bench"],
             "rock_type": z["rock"],
@@ -138,13 +88,10 @@ while current_time <= end_time:
             "y": z["y"]
         })
 
-<<<<<<< HEAD
     if not features:
         current_time += timedelta(hours=STEP_HOURS)
         continue
 
-=======
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
     feat_df = pd.DataFrame(features)
     feat_df["rock_type"] = encoder.transform(feat_df["rock_type"])
 
@@ -161,7 +108,6 @@ while current_time <= end_time:
     ]
 
     feat_df["risk"] = model.predict(X)
-<<<<<<< HEAD
     feat_df["risk_prob"] = model.predict_proba(X)[:, 1]
 
     # =========================
@@ -204,29 +150,4 @@ while current_time <= end_time:
 
     current_time += timedelta(hours=STEP_HOURS)
 
-=======
-
-    # =========================
-    # PLOT REFRESH
-    # =========================
-
-    ax.clear()
-    ax.set_title(f"Live Rockfall Risk Map\nTime: {current_time}")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.grid(True)
-
-    for _, row in feat_df.iterrows():
-        if row["risk"] == 1:
-            ax.scatter(row["x"], row["y"], s=300, marker="X")
-        else:
-            ax.scatter(row["x"], row["y"], s=200)
-
-        ax.text(row["x"] + 5, row["y"] + 5, row["zone_id"])
-
-    plt.pause(1.5)  # controls animation speed
-    current_time += timedelta(hours=STEP_HOURS)
-
-plt.ioff()
->>>>>>> 3e7efb4227ba60d321009dca11c79ad37bc5742e
 plt.show()
